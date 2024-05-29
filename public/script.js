@@ -1,66 +1,81 @@
 window.onload = function () {
+  // Define a Line class to represent individual lines
+  class Line {
+    constructor(startX, startY, direction, targetLength) {
+      this.startX = startX;
+      this.startY = startY;
+      this.endX = startX; // Initialize end point at start point
+      this.endY = startY;
+      this.direction = direction; // 0 for horizontal, 1 for vertical
+      this.targetLength = targetLength; // Desired length of the line
+    }
+
+    // Update the end point of the line based on its direction and target length
+    update() {
+      // Gradually increase end point towards target length
+      if (this.direction === 0 && this.endX < this.startX + this.targetLength)
+        this.endX += 0.1; // Increase slower
+      if (this.direction === 1 && this.endY < this.startY + this.targetLength)
+        this.endY += 0.1; // Increase slower
+    }
+
+    // Draw the line on the canvas context
+    draw(ctx) {
+      ctx.beginPath();
+      ctx.moveTo(this.startX, this.startY);
+      ctx.lineTo(this.endX, this.endY);
+      ctx.stroke();
+    }
+  }
+
+  // Function to generate a random number within a specified range
+  function getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  // Function to generate an array of Line objects
+  function generateLines(numLines, canvasWidth, canvasHeight) {
+    var lines = [];
+    var centerX = canvasWidth / 2;
+    var centerY = canvasHeight / 2;
+    var maxDistanceFromCenter = Math.min(canvasWidth, canvasHeight) / 3;
+
+    // Generate random lines
+    for (var i = 0; i < numLines; i++) {
+      var startX =
+        centerX +
+        getRandomNumber(-maxDistanceFromCenter, maxDistanceFromCenter);
+      var startY =
+        centerY +
+        getRandomNumber(-maxDistanceFromCenter, maxDistanceFromCenter);
+      var direction = getRandomNumber(0, 1); // Random direction (0 for horizontal, 1 for vertical)
+      var targetLength = getRandomNumber(100, 400); // Random target length
+      lines.push(new Line(startX, startY, direction, targetLength));
+    }
+
+    return lines;
+  }
+
   var canvas = document.getElementById("myCanvas");
   var ctx = canvas.getContext("2d");
-
-  // Set canvas dimensions
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  // Get random number of starting points
-  var numStartingPoints = Math.floor(Math.random() * 99) + 19; // Random number between 19 and 99
-  var lines = [];
+  // Generate random lines based on canvas dimensions and number of lines
+  var lines = generateLines(
+    getRandomNumber(19, 99),
+    canvas.width,
+    canvas.height,
+  );
 
-  for (var i = 0; i < numStartingPoints; i++) {
-    // Set starting point closer to the center
-    var centerX = canvas.width / 2;
-    var centerY = canvas.height / 2;
-    var maxDistanceFromCenter = Math.min(canvas.width, canvas.height) / 3;
-    var startX =
-      centerX +
-      Math.floor(
-        Math.random() * maxDistanceFromCenter * 2 - maxDistanceFromCenter,
-      );
-    var startY =
-      centerY +
-      Math.floor(
-        Math.random() * maxDistanceFromCenter * 2 - maxDistanceFromCenter,
-      );
-
-    // Get random direction (0 for horizontal, 1 for vertical)
-    var direction = Math.floor(Math.random() * 2);
-
-    // Calculate end point
-    var length = Math.floor(Math.random() * 400); // Random length up to 400 pixels
-    var endX = direction === 0 ? startX + length : startX;
-    var endY = direction === 1 ? startY + length : startY;
-
-    // Store line information
-    lines.push({
-      startX: startX,
-      startY: startY,
-      endX: startX, // Initialize end point at start point
-      endY: startY,
-      targetLength: length,
-      direction: direction,
-    });
-  }
-
+  // Function to draw lines on the canvas
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i];
-      // Gradually increase end point towards target length
-      if (line.direction === 0 && line.endX < line.startX + line.targetLength)
-        line.endX += 0.1; // Increase slower
-      if (line.direction === 1 && line.endY < line.startY + line.targetLength)
-        line.endY += 0.1; // Increase slower
-      // Draw line
-      ctx.beginPath();
-      ctx.moveTo(line.startX, line.startY);
-      ctx.lineTo(line.endX, line.endY);
-      ctx.stroke();
-    }
-    requestAnimationFrame(draw);
+    lines.forEach(function (line) {
+      line.update(); // Update the position of each line
+      line.draw(ctx); // Draw each line on the canvas
+    });
+    requestAnimationFrame(draw); // Request animation frame for next draw cycle
   }
 
   draw(); // Start animation loop
