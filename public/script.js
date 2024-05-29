@@ -40,8 +40,8 @@ window.onload = function () {
     var centerY = canvasHeight / 2;
     var maxDistanceFromCenter = Math.min(canvasWidth, canvasHeight) / 3;
 
-    // Generate random lines
-    for (var i = 0; i < numLines; i++) {
+    // Recursive function to generate lines
+    function generateLine() {
       var startX =
         centerX +
         getRandomNumber(-maxDistanceFromCenter, maxDistanceFromCenter);
@@ -51,7 +51,15 @@ window.onload = function () {
       var direction = getRandomNumber(0, 1); // Random direction (0 for horizontal, 1 for vertical)
       var targetLength = getRandomNumber(100, 400); // Random target length
       lines.push(new Line(startX, startY, direction, targetLength));
+
+      // Recursively generate remaining lines
+      if (lines.length < numLines) {
+        generateLine();
+      }
     }
+
+    // Start the recursion
+    generateLine();
 
     return lines;
   }
