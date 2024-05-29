@@ -14,9 +14,9 @@ window.onload = function () {
     update() {
       // Gradually increase end point towards target length
       if (this.direction === 0 && this.endX < this.startX + this.targetLength)
-        this.endX += 0.1; // Increase slower
+        this.endX += 0.3; // Draw speed
       if (this.direction === 1 && this.endY < this.startY + this.targetLength)
-        this.endY += 0.1; // Increase slower
+        this.endY += 0.3; // Draw speed
     }
 
     // Draw the line on the canvas context

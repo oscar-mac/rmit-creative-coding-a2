@@ -9,17 +9,17 @@
 :root {
     --text-grey: #8c8c8c;
     --text-white: #fff;
-    --text-black: #000;
+    --text-black: #302e2a;
+    --background-white: #fdfcf8;
 }
 
 html {
-    background-color: #fff;
+    background-color: var(--background-white);
     font-family: "Gerstner-Programm", Arial, system-ui, sans-serif;
 }
 
 .header {
     display: flex;
-    /* justify-content: flex-end; */
     justify-content: space-between;
     margin-left: 20px;
     margin-right: 20px;
