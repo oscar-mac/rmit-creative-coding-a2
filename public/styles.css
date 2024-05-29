@@ -1,0 +1,41 @@
+@font-face {
+    font-family: "Gerstner-Programm";
+    src:
+        url("Gerstner-Programm/Gerstner-ProgrammRegular.woff2") format("woff2"),
+        url("Gerstner-Programm/Gerstner-ProgrammRegular.woff") format("woff"),
+        url("Gerstner-Programm/Gerstner-ProgrammRegular.ttf") format("truetype");
+}
+
+:root {
+    --text-grey: #8c8c8c;
+    --text-white: #fff;
+    --text-black: #000;
+}
+
+html {
+    background-color: #fff;
+    font-family: "Gerstner-Programm", Arial, system-ui, sans-serif;
+}
+
+.header {
+    display: flex;
+    /* justify-content: flex-end; */
+    justify-content: space-between;
+    margin-left: 20px;
+    margin-right: 20px;
+    width: calc(100vw - 40px);
+    padding-top: 18.5px;
+    font-size: 24px;
+    color: var(--text-black);
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.header .clickable:hover {
+    color: var(--text-white);
+}
+
+.clickable:active {
+}
