@@ -34,7 +34,7 @@ html {
 }
 
 .header .clickable:hover {
-    color: var(--text-white);
+    color: var(--text-grey);
 }
 
 .clickable:active {
