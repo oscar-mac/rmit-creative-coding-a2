@@ -1,90 +1,143 @@
-window.onload = function () {
-  // Define a Line class to represent individual lines
-  class Line {
-    constructor(startX, startY, direction, targetLength) {
-      this.startX = startX;
-      this.startY = startY;
-      this.endX = startX; // Initialize end point at start point
-      this.endY = startY;
-      this.direction = direction; // 0 for horizontal, 1 for vertical
-      this.targetLength = targetLength; // Desired length of the line
+document.addEventListener("DOMContentLoaded", function () {
+  const canvas = document.getElementById("frame");
+  // CanvasRenderingContext2D from Canvas API!!
+  const context = canvas.getContext("2d");
+
+  class Square {
+    constructor(x, y, size, orientation, color) {
+      this.x = x;
+      this.y = y;
+      this.size = size;
+      this.orientation = orientation;
+      this.color = color;
+      // Speed for movement
+      this.speedX = Math.random() * 2 - 1; // horizontal
+      this.speedY = Math.random() * 2 - 1; // vertical
     }
 
-    // Update the end point of the line based on its direction and target length
-    update() {
-      // Gradually increase end point towards target length
-      if (this.direction === 0 && this.endX < this.startX + this.targetLength)
-        this.endX += 0.3; // Draw speed
-      if (this.direction === 1 && this.endY < this.startY + this.targetLength)
-        this.endY += 0.3; // Draw speed
+    // Draw square on canvas
+    draw() {
+      context.beginPath();
+      if (this.orientation === "vertical") {
+        for (let i = this.x; i < this.x + this.size; i += 5) {
+          context.moveTo(i, this.y);
+          context.lineTo(i, this.y + this.size);
+        }
+      } else {
+        for (let i = this.y; i < this.y + this.size; i += 5) {
+          context.moveTo(this.x, i);
+          context.lineTo(this.x + this.size, i);
+        }
+      }
+      context.strokeStyle = this.color;
+      context.lineWidth = 1;
+      context.stroke();
     }
 
-    // Draw the line on the canvas context
-    draw(ctx) {
-      ctx.beginPath();
-      ctx.moveTo(this.startX, this.startY);
-      ctx.lineTo(this.endX, this.endY);
-      ctx.stroke();
+    // Move square
+    updatePosition() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+
+      // If square hits boundary, reverse horizontal direction
+      if (this.x < 0 || this.x > canvas.width - this.size) {
+        this.speedX *= -1;
+      }
+
+      // Reverse vertical direction if the square hits canvas boundary
+      if (this.y < 0 || this.y > canvas.height - this.size) {
+        this.speedY *= -1;
+      }
     }
   }
 
-  // Function to generate a random number within a specified range
-  function getRandomNumber(min, max) {
+  // Generate a random integer between range
+  function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  // Function to generate an array of Line objects
-  function generateLines(numLines, canvasWidth, canvasHeight) {
-    var lines = [];
-    var centerX = canvasWidth / 2;
-    var centerY = canvasHeight / 2;
-    var maxDistanceFromCenter = Math.min(canvasWidth, canvasHeight) / 3;
+  // Draw recursively generated squares
+  function drawRecursion(numSquares, depth) {
+    const canvasSize = canvas.width;
 
-    // Recursive function to generate lines
-    function generateLine() {
-      var startX =
-        centerX +
-        getRandomNumber(-maxDistanceFromCenter, maxDistanceFromCenter);
-      var startY =
-        centerY +
-        getRandomNumber(-maxDistanceFromCenter, maxDistanceFromCenter);
-      var direction = getRandomNumber(0, 1); // Random direction (0 for horizontal, 1 for vertical)
-      var targetLength = getRandomNumber(100, 400); // Random target length
-      lines.push(new Line(startX, startY, direction, targetLength));
+    // Calculate the size of each quadrant
+    const quadrantSize = canvasSize / 2;
 
-      // Recursively generate remaining lines
-      if (lines.length < numLines) {
-        generateLine();
-      }
+    const minSquareSize = 400;
+    const maxSquareSize = quadrantSize - 20;
+    // Define the coordinates of each quadrant
+    const quadrants = [
+      { x: 0, y: 0 }, // Top left
+      { x: quadrantSize, y: 0 }, // Top right
+      { x: 0, y: quadrantSize }, // Bottom left
+      { x: quadrantSize, y: quadrantSize }, // Bottom right
+    ];
+
+    // Randomly choose the orientation for squares in the top-left quadrant and determine orientation of squares in other quadrants to create a grid pattern on movement.
+    const topLeftOrientation = Math.random() > 0.5 ? "horizontal" : "vertical";
+    const orientations = [
+      topLeftOrientation,
+      topLeftOrientation === "horizontal" ? "vertical" : "horizontal",
+      topLeftOrientation === "horizontal" ? "vertical" : "horizontal",
+      topLeftOrientation,
+    ];
+
+    // Array to store the generated squares
+    const squares = [];
+
+    // Recursive function to create squares within each quadrant
+    function createSquares(quadrantIndex, recursionDepth) {
+      // Base case: stop recursion when depth is zero
+      if (recursionDepth <= 0) return;
+
+      // Get the current quadrant
+      const quadrant = quadrants[quadrantIndex];
+      // Generate a random size for the square within the allowed range
+      const size = getRandomInt(minSquareSize, maxSquareSize);
+      // Define the range within which the square's position can vary
+      const xRange = quadrantSize / 4;
+      const yRange = quadrantSize / 4;
+      // Generate random coordinates for the square within the quadrant
+      const x = getRandomInt(
+        quadrant.x + xRange,
+        quadrant.x + quadrantSize - size - xRange,
+      );
+      const y = getRandomInt(
+        quadrant.y + yRange,
+        quadrant.y + quadrantSize - size - yRange,
+      );
+      // Get the orientation for the current quadrant
+      const orientation = orientations[quadrantIndex];
+      // Randomly choose the color for the square, 10% chance of being red, otherwise black.
+      const color = Math.random() < 0.1 ? "red" : "black";
+      // Create a new square object with the generated properties
+      const square = new Square(x, y, size, orientation, color);
+      // Add the square to the array of squares
+      squares.push(square);
+
+      // Recursively create squares in the next depth level
+      createSquares((quadrantIndex + 1) % 4, recursionDepth - 1);
     }
 
-    // Start the recursion
-    generateLine();
+    // Call the recursive function to create squares starting from the top-left quadrant
+    createSquares(0, depth);
 
-    return lines;
+    // Animation function to continuously update and draw squares based on their updated position
+    function animate() {
+      // Clear the canvas before drawing the next frame
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      // Update and draw each square
+      squares.forEach((square) => {
+        square.updatePosition();
+        square.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    animate();
   }
 
-  var canvas = document.getElementById("myCanvas");
-  var ctx = canvas.getContext("2d");
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  // Generate random lines based on canvas dimensions and number of lines
-  var lines = generateLines(
-    getRandomNumber(19, 99),
-    canvas.width,
-    canvas.height,
-  );
-
-  // Function to draw lines on the canvas
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    lines.forEach(function (line) {
-      line.update(); // Update the position of each line
-      line.draw(ctx); // Draw each line on the canvas
-    });
-    requestAnimationFrame(draw); // Request animation frame for next draw cycle
-  }
-
-  draw(); // Start animation loop
-};
+  const recursionDepth = getRandomInt(11, 17);
+  // Draw the squares recursively with random recursion depth
+  drawRecursion(1, recursionDepth);
+});
