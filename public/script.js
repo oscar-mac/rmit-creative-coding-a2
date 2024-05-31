@@ -11,8 +11,8 @@ document.addEventListener("DOMContentLoaded", function () {
       this.orientation = orientation;
       this.color = color;
       // Speed for movement
-      this.speedX = Math.random() * 2 - 1; // horizontal
-      this.speedY = Math.random() * 2 - 1; // vertical
+      this.speedX = (Math.random() - 0.1) * 0.1; // horizontal
+      this.speedY = (Math.random() - 0.1) * 0.1; // vertical
     }
 
     // Draw square on canvas
