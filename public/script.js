@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
     animate();
   }
 
-  const recursionDepth = getRandomInt(11, 17);
+  const recursionDepth = getRandomInt(4, 17); // Range between 4 and 17
   // Draw the squares recursively with random recursion depth
   drawRecursion(1, recursionDepth);
 });
